@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Система учета гостиницы</title>
+    <style>
+        :root {
+            --bg: #ffffff;
+            --fg: #000000;
+            --border: #000000;
+            --muted: #555555;
+            --panel-bg: #f9f9f9;
+        }
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: var(--bg);
+            color: var(--fg);
+            margin: 0;
+            padding: 20px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 18px;
+            text-transform: uppercase;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            font-size: 14px;
+            text-transform: uppercase;
+            border-left: 4px solid var(--border);
+            padding-left: 10px;
+            margin-top: 40px;
+            margin-bottom: 15px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .panel {
+            border: 1px solid var(--border);
+            padding: 15px;
+            background-color: var(--panel-bg);
+        }
+        .panel h3 {
+            margin: 0 0 15px 0;
+            font-size: 13px;
+            text-decoration: underline;
+        }
+        label {
+            display: block;
+            font-size: 12px;
+            margin-bottom: 4px;
+            color: var(--muted);
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 6px;
+            margin-bottom: 10px;
+            border: 1px solid var(--muted);
+            background: #fff;
+            font-family: 'Courier New', Courier, monospace;
+            box-sizing: border-box;
+        }
+        input[type="checkbox"] {
+            margin: 0 5px 10px 0;
+        }
+        button {
+            width: 100%;
+            padding: 8px;
+            background: var(--fg);
+            color: var(--bg);
+            border: 1px solid var(--fg);
+            cursor: pointer;
+            font-family: 'Courier New', Courier, monospace;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        button:hover {
+            background: var(--muted);
+            border-color: var(--muted);
+        }
+        .output {
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px dashed var(--muted);
+            background: #fff;
+            min-height: 40px;
+            font-size: 12px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .error {
+            color: #8b0000;
+            font-weight: bold;
+        }
+        .success {
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>СИСТЕМА УЧЕТА ГОСТиницы // АЛГОРИТМЫ И СТРУКТУРЫ ДАННЫХ</h1>
+
+    <h2>[ Хеш-таблица ] Постояльцы</h2>
+    <div class="grid">
+        <div class="panel">
+            <h3>Регистрация нового гостя</h3>
+            <label>Паспорт (NNNN-NNNNNN)</label>
+            <input type="text" id="g_passport" placeholder="1234-567890">
+            <label>ФИО</label>
+            <input type="text" id="g_name" placeholder="Иванов И.И.">
+            <label>Год рождения</label>
+            <input type="number" id="g_year" placeholder="1990">
+            <label>Адрес</label>
+            <input type="text" id="g_address" placeholder="г. Москва">
+            <label>Цель прибытия</label>
+            <input type="text" id="g_purpose" placeholder="Отдых">
+            <button onclick="addGuest()">Добавить</button>
+            <div class="output" id="guest_result">> Ожидание операции...</div>
+        </div>
+
+        <div class="panel">
+            <h3>Поиск гостя по паспорту</h3>
+            <label>Паспорт</label>
+            <input type="text" id="find_passport" placeholder="1234-567890">
+            <button onclick="findGuest()">Найти (O(1))</button>
+            <div class="output" id="find_guest_result">> Ожидание операции...</div>
+        </div>
+    </div>
+
+    <h2>[ АВЛ-дерево ] Номера</h2>
+    <div class="grid">
+        <div class="panel">
+            <h3>Добавление номера</h3>
+            <label>Номер (Л/П/О/М + 3 цифры)</label>
+            <input type="text" id="r_number" placeholder="О101">
+            <label>Количество мест</label>
+            <input type="number" id="r_beds" placeholder="2">
+            <label>Количество комнат</label>
+            <input type="number" id="r_rooms" placeholder="1">
+            <label>Оборудование</label>
+            <input type="text" id="r_equipment" placeholder="Wi-Fi, ТВ">
+            <label><input type="checkbox" id="r_bathroom"> Санузел</label>
+            <button onclick="addRoom()">Добавить (O(log N))</button>
+            <div class="output" id="room_result">> Ожидание операции...</div>
+        </div>
+
+        <div class="panel">
+            <h3>Поиск по оборудованию</h3>
+            <label>Фрагмент оборудования</label>
+            <input type="text" id="search_eq" placeholder="Wi-Fi">
+            <button onclick="searchRooms()">Поиск (Boyer-Moore)</button>
+            <div class="output" id="search_eq_result">> Ожидание операции...</div>
+        </div>
+    </div>
+
+    <h2>[ Циклический список ] Заселение</h2>
+    <div class="grid">
+        <div class="panel">
+            <h3>Регистрация заезда</h3>
+            <label>Паспорт гостя</label>
+            <input type="text" id="s_passport" placeholder="1234-567890">
+            <label>Номер комнаты</label>
+            <input type="text" id="s_room" placeholder="О101">
+            <label>Дата заезда (ГГГГ-ММ-ДД)</label>
+            <input type="text" id="s_date" placeholder="2023-10-25">
+            <button onclick="checkIn()">Заселить</button>
+            <div class="output" id="stay_result">> Ожидание операции...</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_URL = '/api';
+
+    async function postData(url, data) {
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        if (res.status === 200) return res.json();
+        const err = await res.json();
+        throw err;
+    }
+
+    function showResult(elementId, text, isError = false) {
+        const el = document.getElementById(elementId);
+        el.innerHTML = '> ' + text;
+        el.className = 'output ' + (isError ? 'error' : 'success');
+    }
+
+    async function addGuest() {
+        const data = {
+            passport: document.getElementById('g_passport').value,
+            full_name: document.getElementById('g_name').value,
+            birth_year: parseInt(document.getElementById('g_year').value),
+            address: document.getElementById('g_address').value,
+            arrival_purpose: document.getElementById('g_purpose').value
+        };
+        try { const r = await postData(`${API_URL}/guests/`, data); showResult('guest_result', r.message); } 
+        catch (e) { showResult('guest_result', 'ОШИБКА: ' + e.detail, true); }
+    }
+
+    async function findGuest() {
+        const p = document.getElementById('find_passport').value;
+        try { 
+            const res = await fetch(`${API_URL}/guests/${p}`);
+            if (!res.ok) throw await res.json();
+            const r = await res.json(); 
+            showResult('find_guest_result', `НАЙДЕН:\nФИО: ${r.full_name}\nГод: ${r.birth_year}\nАдрес: ${r.address}\nЦель: ${r.arrival_purpose}`); 
+        } catch (e) { showResult('find_guest_result', 'ОШИБКА: ' + e.detail, true); }
+    }
+
+    async function addRoom() {
+        const data = {
+            number: document.getElementById('r_number').value,
+            bed_count: parseInt(document.getElementById('r_beds').value),
+            room_count: parseInt(document.getElementById('r_rooms').value),
+            has_bathroom: document.getElementById('r_bathroom').checked,
+            equipment: document.getElementById('r_equipment').value
+        };
+        try { const r = await postData(`${API_URL}/rooms/`, data); showResult('room_result', r.message); } 
+        catch (e) { showResult('room_result', 'ОШИБКА: ' + e.detail, true); }
+    }
+
+    async function searchRooms() {
+        const eq = document.getElementById('search_eq').value;
+        try { 
+            const res = await fetch(`${API_URL}/rooms/search/?equipment=${eq}`);
+            if (!res.ok) throw await res.json();
+            const r = await res.json(); 
+            const text = r.length > 0 ? r.map(room => `[${room.number}] Мест: ${room.bed_count} | ${room.equipment}`).join('\n') : "Ничего не найдено";
+            showResult('search_eq_result', text); 
+        } catch (e) { showResult('search_eq_result', 'ОШИБКА: ' + e.detail, true); }
+    }
+
+    async function checkIn() {
+        const data = {
+            passport: document.getElementById('s_passport').value,
+            room_number: document.getElementById('s_room').value,
+            check_in_date: document.getElementById('s_date').value
+        };
+        try { const r = await postData(`${API_URL}/stays/check-in`, data); showResult('stay_result', r.message); } 
+        catch (e) { showResult('stay_result', 'ОШИБКА: ' + e.detail, true); }
+    }
+</script>
+</body>
+</html>
